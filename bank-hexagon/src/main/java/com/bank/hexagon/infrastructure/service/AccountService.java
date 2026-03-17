@@ -3,9 +3,11 @@ package com.bank.hexagon.infrastructure.service;
 import com.bank.hexagon.domain.dto.AccountDTO;
 import com.bank.hexagon.infrastructure.AccountRepository;
 import com.bank.hexagon.port.driver.AccountDriverPort;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Service
 public class AccountService implements AccountDriverPort {
 
     private final AccountRepository accountRepository;

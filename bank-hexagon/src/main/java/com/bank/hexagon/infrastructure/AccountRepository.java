@@ -1,9 +1,12 @@
 package com.bank.hexagon.infrastructure;
 
 import com.bank.hexagon.domain.dto.AccountDTO;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
+@Repository
 public interface AccountRepository {
     AccountDTO save(AccountDTO accountDTO);
     AccountDTO update(AccountDTO accountDTO);
