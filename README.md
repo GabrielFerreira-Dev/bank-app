@@ -1,0 +1,4 @@
+# futuras melhorias:
+- [ ] Criar uma entidade representando o AccountHolder para armazenar informações
+- [ ] Trocar interfaces das port com múltiplas responsabilidades por UseCases específicos para cada ação (ex: CreateAccount, Deposit, Withdraw), respeitando o SOLID
+- [ ] No DDD, para termos um repository, devemos ter um aggregate root, ou seja, uma entidade que é a raiz do agregado. No caso, a entidade Account poderia ser o aggregate root, e o repository seria responsável por persistir e recuperar as contas. Dessa forma, teríamos um AccountRepository que implementaria as operações de persistência para a entidade Account.
