@@ -7,11 +7,8 @@ public record Limit(
         Double dailyTransferLimit,
         Double dailyWithdrawalLimit
 ) {
-    public Limit(Double dailyTransactionLimit, Double dailyTransferLimit, Double dailyWithdrawalLimit) {
+    public Limit {
         validate(dailyTransactionLimit, dailyTransferLimit, dailyWithdrawalLimit);
-        this.dailyTransactionLimit = 0.0;
-        this.dailyTransferLimit = 0.0;
-        this.dailyWithdrawalLimit = 0.0;
     }
 
     private void validate(Double dailyTransactionLimit, Double dailyTransferLimit, Double dailyWithdrawalLimit) {

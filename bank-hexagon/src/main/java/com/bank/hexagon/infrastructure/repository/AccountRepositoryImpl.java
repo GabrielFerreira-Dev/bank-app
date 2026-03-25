@@ -1,11 +1,18 @@
 package com.bank.hexagon.infrastructure.repository;
 
-import com.bank.hexagon.domain.dto.AccountDTO;
+import com.bank.hexagon.domain.entity.Account;
 import com.bank.hexagon.infrastructure.AccountRepository;
 import com.bank.hexagon.port.driven.AccountDrivenPort;
 
 import java.util.UUID;
 
+/**
+ * Implementação da porta de persistência - trabalha com Account (domínio)
+ * 
+ * Responsabilidade: delegar Account validado para adapters via AccountDrivenPort
+ * 
+ * Nota: Removido @Repository - será instanciado via @Bean em HexagonConfiguration
+ */
 public class AccountRepositoryImpl implements AccountRepository {
     private final AccountDrivenPort accountDrivenPort;
 
@@ -14,26 +21,26 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     @Override
-    public AccountDTO save(AccountDTO accountDTO) {
-        return accountDrivenPort.save(accountDTO);
+    public Account save(Account account) {
+        return accountDrivenPort.save(account);
     }
 
     @Override
-    public AccountDTO update(AccountDTO accountDTO) {
-        AccountDTO account = accountDrivenPort.findAccountById(accountDTO.id());
-        if(account != null) {
+    public Account update(Account account) {
+        Account existingAccount = accountDrivenPort.findAccountById(account.getAccountId().id());
+        if(existingAccount != null) {
             return accountDrivenPort.update(account);
         }
-        throw  new IllegalArgumentException("Account not found");
+        throw new IllegalArgumentException("Account not found");
     }
 
     @Override
-    public AccountDTO findAccountById(UUID id) {
-        AccountDTO account = accountDrivenPort.findAccountById(id);
+    public Account findAccountById(UUID id) {
+        Account account = accountDrivenPort.findAccountById(id);
         if(account != null) {
             return account;
         }
-        throw  new IllegalArgumentException("Account not found");
+        throw new IllegalArgumentException("Account not found");
     }
 
     @Override

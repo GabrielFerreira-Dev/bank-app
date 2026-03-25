@@ -15,6 +15,7 @@ public class Account {
 
     public Account(String bank, String branch, String accountNumber, Double balance, AccountHolderId accountHolderId, Limit limits, boolean active) {
         validate(bank, branch, balance, accountNumber, limits);
+        this.accountId = new AccountId();
         this.bank = bank;
         this.branch = branch;
         this.balance = balance;
@@ -37,7 +38,7 @@ public class Account {
         if (branch.length() != BRANCH_NUMBER_LENGHT) {
             sb.append("Branch number must be ").append(BRANCH_NUMBER_LENGHT).append(" digits long.");
         }
-        if (bank.length() != BANK_NUMBER_LENGHT) {
+        if (bank.length() < BANK_NUMBER_LENGHT) {
             sb.append("Bank number must be ").append(BANK_NUMBER_LENGHT).append(" digits long.");
         }
         if(balance < 0) {
@@ -77,6 +78,10 @@ public class Account {
 
     public AccountId getAccountId() {
         return accountId;
+    }
+
+    public void setAccountId(AccountId accountId) {
+        this.accountId = accountId;
     }
 
     public String getBank() {

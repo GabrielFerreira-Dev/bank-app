@@ -11,7 +11,7 @@ public record AccountDTO(
     String accountNumber,
     Double balance,
     UUID accountHolderId,
-    String limits,
+    String limit,
     boolean active
 ) {
 }
