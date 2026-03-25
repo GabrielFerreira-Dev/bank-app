@@ -3,16 +3,12 @@ package com.bank.h2adapter.application.service;
 import com.bank.h2adapter.application.mapper.AccountMapper;
 import com.bank.h2adapter.infrastructure.entity.AccountEntity;
 import com.bank.h2adapter.infrastructure.repository.AccountJpaRepository;
-import com.bank.hexagon.domain.dto.AccountDTO;
-import com.bank.hexagon.infrastructure.service.AccountService;
+import com.bank.hexagon.domain.entity.Account;
 import com.bank.hexagon.port.driven.AccountDrivenPort;
-import com.bank.hexagon.port.driver.AccountDriverPort;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,74 +19,64 @@ public class AccountInMemoryService implements AccountDrivenPort {
     private final AccountMapper accountMapper;
 
     @Override
-    public AccountDTO save(AccountDTO accountDTO) {
-        AccountEntity accountEntity = accountMapper.toEntity(accountDTO);
-        return accountMapper.toDTO(accountJpaRepository.save(accountEntity));
-
+    public Account save(Account account) {
+        AccountEntity accountEntity = accountMapper.toEntity(account);
+        AccountEntity savedEntity = accountJpaRepository.save(accountEntity);
+        return accountMapper.toDomainEntity(savedEntity);
     }
 
     @Override
-    public AccountDTO update(AccountDTO accountDTO) {
-        accountJpaRepository.findById(accountDTO.id())
-                .ifPresentOrElse(entity -> {
-                    BeanUtils.copyProperties(accountDTO, entity);
-                    accountJpaRepository.save(entity);
-                }, () -> {
-                    throw new IllegalArgumentException("Account not found");
-                });
-
-        return accountDTO;
+    public Account update(Account account) {
+        AccountEntity accountEntity = accountMapper.toEntity(account);
+        AccountEntity updatedEntity = accountJpaRepository.save(accountEntity);
+        return accountMapper.toDomainEntity(updatedEntity);
     }
 
     @Override
-    public AccountDTO findAccountById(UUID id) {
-        Optional<AccountEntity> accountEntity = accountJpaRepository.findById(id);
-        if(accountEntity.isPresent()) {
-            return accountMapper.toDTO(accountEntity.get());
-        }
-        throw new IllegalArgumentException("Account not found");
+    public Account findAccountById(UUID id) {
+        return accountJpaRepository.findById(id)
+                .map(accountMapper::toDomainEntity)
+                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
     }
 
     @Override
     @Transactional
     public void transfer(UUID fromAccountId, UUID toAccountId, Double amount) {
-        accountJpaRepository.findById(fromAccountId)
-                .ifPresentOrElse(entity -> {
-                        entity.setBalance(entity.getBalance() - amount);
-                        accountJpaRepository.save(entity);
-                }, () -> {
-                    throw new IllegalArgumentException("Account not found");
-                });
+        // Recarregar ambas as contas do banco
+        Account fromAccount = findAccountById(fromAccountId);
+        Account toAccount = findAccountById(toAccountId);
 
-        accountJpaRepository.findById(toAccountId)
-                .ifPresentOrElse(entity -> {
-                        entity.setBalance(entity.getBalance() + amount);
-                        accountJpaRepository.save(entity);
-                }, () -> {
-                    throw new IllegalArgumentException("Account not found");
-                });
+        // Invocar lógica de domínio (métodos da entidade)
+        fromAccount.debit(amount);
+        toAccount.credit(amount);
+
+        // Persistir ambas as contas modificadas
+        save(fromAccount);
+        save(toAccount);
     }
 
     @Override
     public void credit(UUID id, Double amount) {
-        accountJpaRepository.findById(id)
-                .ifPresentOrElse(entity -> {
-                    entity.setBalance(entity.getBalance() + amount);
-                    accountJpaRepository.save(entity);
-                }, () -> {
-                    throw new IllegalArgumentException("Is not possible to credit an account that was not found");
-                });
+        // Recarregar conta do banco
+        Account account = findAccountById(id);
+
+        // Invocar lógica de domínio
+        account.credit(amount);
+
+        // Persistir conta modificada
+        save(account);
     }
 
     @Override
     public void debit(UUID id, Double amount) {
-        accountJpaRepository.findById(id)
-                .ifPresentOrElse(entity -> {
-                    entity.setBalance(entity.getBalance() - amount);
-                    accountJpaRepository.save(entity);
-                }, () -> {
-                    throw new IllegalArgumentException("Is not possible to debit an account that was not found");
-                });
+        // Recarregar conta do banco
+        Account account = findAccountById(id);
+
+        // Invocar lógica de domínio
+        account.debit(amount);
+
+        // Persistir conta modificada
+        save(account);
     }
 
     @Override
