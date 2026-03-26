@@ -25,7 +25,7 @@ public class AccountMapper {
                 accountDTO.branch(),
                 accountDTO.accountNumber(),
                 accountDTO.balance(),
-                new AccountHolderId(accountDTO.accountHolderId()),
+                new AccountHolderId(),
                 toLimit(accountDTO.limit()),
                 accountDTO.active()
         );
